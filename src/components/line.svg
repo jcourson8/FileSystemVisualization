@@ -1,0 +1,16 @@
+<svg width="200" height="150" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+  <!-- Style for the line and curve -->
+  <style>
+    .line, .curve {
+      stroke: black;
+      stroke-width: 2;
+      fill: none;
+    }
+  </style>
+  <!-- Vertical line -->
+  <line class="line" x1="100" y1="0" x2="100" y2="100" />
+  <!-- Rounded turn to the left -->
+  <!-- Using the 'A' command for an arc: A rx ry x-axis-rotation large-arc-flag sweep-flag x y -->
+  <path d="M 100 100 q 0 20 20 20 l 20 0" stroke="black" fill="none" stroke-width="2"/>
+
+</svg>
