@@ -8,7 +8,7 @@ interface SelectedItemDetailsProps {
 export const SelectedItemDetails: Component<SelectedItemDetailsProps> = ({ selectedItem }) => {
   // Helper function to determine how to render different types of values
   const renderValue = (value: any) => {
-    console.log('renderValue called with:', value);
+    // console.log('renderValue called with:', value);
     if (Array.isArray(value)) {
       return (
         <For each={value}>

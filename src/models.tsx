@@ -30,7 +30,7 @@ export interface FileProps {
     // RootDirectory-specific properties
     ignored_directories?: string[];
     directory_name?: string;
-    parentUuid: string;
+    // parentUuid: string;
   
     // Any other custom properties from other entity types
     
