@@ -22,8 +22,8 @@ export const Item = (props: ItemProps) => {
     const parentRect = props.parentRef.getBoundingClientRect();
     const itemRect = itemRef.getBoundingClientRect();
 
-    const xOffset = 10;
-    const yOffset = 12;
+    const xOffset = 10+3;
+    const yOffset = 12+3;
 
     const xPos = parentRect.left + window.scrollX + xOffset;
   
@@ -92,9 +92,9 @@ export const Item = (props: ItemProps) => {
   };
 
   const itemColor = () => {
-    if (isFile) return 'text-indigo-800';
-    if (isDirectory) return 'text-gray-800';
-    if (isPythonEntity) return 'text-yellow-900';
+    if (isFile) return 'text-indigo-300';
+    if (isDirectory) return 'text-gray-300';
+    if (isPythonEntity) return 'text-orange-500';
     return 'text-black';
   };
 
@@ -102,22 +102,22 @@ export const Item = (props: ItemProps) => {
     <div ref={itemRef}>
       {/* Conditionally render the SVG line if this item has a parent */}
       {props.parentRef && (
-        <svg style={{pointerEvents: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1 }}>
+        <svg style={{pointerEvents: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -99 }}>
           {/* <line {...linePoints()} stroke="black" strokeWidth="2" style={{ pointerEvents: 'none' }} /> */}
           {/* <line class="line" {...linePoints()} style={{ pointerEvents: 'none' }}  /> */}
 
-          <path d={`M${linePoints().x1},${linePoints().y1} L${linePoints().x2},${linePoints().y2} Q${linePoints().curveCX},${linePoints().curveCY} ${linePoints().curveEX},${linePoints().curveEY}`} stroke="black" fill="none" strokeWidth="2" style={{ pointerEvents: 'none' }} />
+          <path d={`M${linePoints().x1},${linePoints().y1} L${linePoints().x2},${linePoints().y2} Q${linePoints().curveCX},${linePoints().curveCY} ${linePoints().curveEX},${linePoints().curveEY}`} stroke="gray" fill="none" strokeWidth="2" style={{ pointerEvents: 'none' }} />
 
 
         </svg>
       )}
       <div onClick={handleClick} class={`relative cursor-pointer font-semibold ${itemColor()} flex items-center gap-2`}>
-        <span class="inline-flex mr-2 w-5 h-5 rounded-sm bg-gray-300 items-center justify-center">
+        <span class="inline-flex mr-2 w-8 h-8 rounded-sm bg-indigo-800 items-center justify-center">
           {renderIcon()}
         </span>
         <span class="flex-1 truncate hover:underline">{props.name}</span>
         {props.contents && props.contents.length > 0 && (
-          <div onClick={toggleOpen} class="mx-2 text-sm cursor-pointer inline-flex justify-center items-center w-6 h-6 rounded-sm hover:bg-gray-300 transition-colors duration-150 ease-in-out">
+          <div onClick={toggleOpen} class="mx-2 text-sm cursor-pointer inline-flex justify-center items-center w-6 h-6 rounded-sm  hover:bg-indigo-900 transition-colors duration-150 ease-in-out">
             {isOpen() ? (
               <span class="transition-transform transform rotate-90"><Arrow/></span>
             ) : (

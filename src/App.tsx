@@ -16,12 +16,12 @@ export const App = () => {
 
 
   return (
-    <div class="flex divide-x min-h-screen">
+    <div class="dark flex divide-x  min-h-screen">
       <div class="w-2/5 px-5 py-5 overflow-auto">
-        <h1 class="text-xl font-bold mb-4">Knowledge Base</h1>
+        <h1 class="text-xl text-gray-200 font-bold mb-4">Knowledge Base</h1>
         <Item {...knowledgeData as ContentProps} onSelectItem={handleSelectItem} />
       </div>
-      <div class="w-3/5 pl-5 py-5 bg-gray-50 overflow-auto">
+      <div class="w-3/5 pl-5 py-5 bg-indigo-950 overflow-auto text-gray-300">
         <Show when={selectedItem()} fallback={<p>No item selected. Please select an item to see its details.</p>}>
           <SelectedItemDetails selectedItem={selectedItem} />
         </Show>

@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  background-color: #1e1b4b;
+}
+
 .tree-container {
   position: relative;
   width: 100%; /* Ensure it has a size */
