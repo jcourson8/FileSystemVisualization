@@ -8,11 +8,9 @@
     }
   </style>
   <!-- Vertical line -->
-  <!-- <line class="line" x1="100" y1="0" x2="100" y2="100" /> -->
+  <line class="line" x1="100" y1="0" x2="100" y2="100" />
   <!-- Rounded turn to the left -->
   <!-- Using the 'A' command for an arc: A rx ry x-axis-rotation large-arc-flag sweep-flag x y -->
-  <!-- <path d="M 100 100 q 0 20 20 20 l 20 0" stroke="black" fill="none" stroke-width="2"/> -->
-<line x1="0" y1="0" x2="100" y2="100" stroke="black" stroke-width="2" />
-
+  <path d="M 100 100 q 0 20 20 20 l 20 0" stroke="black" fill="none" stroke-width="2"/>
 
 </svg>

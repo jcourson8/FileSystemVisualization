@@ -11,27 +11,45 @@ interface ItemProps extends ContentProps {
 export const Item = (props: ItemProps) => {
   let itemRef: HTMLElement; // Reference to this item's HTML element
   const [isOpen, setIsOpen] = createSignal(false);
-  const [linePoints, setLinePoints] = createSignal({ x1: 0, y1: 0, x2: 0, y2: 0 });
+  const [linePoints, setLinePoints] = createSignal({ x1: 0, y1: 0, x2: 0, y2: 0, curveCX: 0, curveCY: 0, curveEX: 0, curveEY: 0 });
 
   // Function to calculate and update line points between this item and its parent
   const updateLinePoints = () => {
     if (!props.parentRef || !itemRef) {
       return;
     }
-
+  
     const parentRect = props.parentRef.getBoundingClientRect();
     const itemRect = itemRef.getBoundingClientRect();
 
+    const xOffset = 10;
+    const yOffset = 12;
+
+    const xPos = parentRect.left + window.scrollX + xOffset;
+  
+    // Assuming the curve will start at the end of the vertical line (`x2`, `y2`) and extend rightward.
+    // const curveStartX = xPos; // Same as x2, to start the curve
+    const curveStartY = itemRect.top + window.scrollY + yOffset - 20; // Start a bit above the item for the curve
+    const curveEndX = itemRect.left + window.scrollX + xOffset -10; // End of the item, adjust as needed
+    const curveEndY = itemRect.top + window.scrollY + yOffset; // Top of the item, adjust as needed
+
+    
+  
     // Adjust these calculations as needed for your layout
     setLinePoints({
-      x1: parentRect.left + 10,
-      y1: parentRect.top + 20,
-      x2: itemRect.left,
-      y2: itemRect.top + 10,
+      x1: xPos,
+      y1: parentRect.top + window.scrollY + yOffset,
+      x2: xPos,
+      y2: curveStartY, // Adjust based on where you want the curve to start
+      curveCX: xPos, // Control point for curve, adjust as needed
+      curveCY: curveStartY + 20, // Control point for curve, adjust as needed
+      curveEX: curveEndX, // End point of curve
+      curveEY: curveEndY, // End point of curve
     });
   };
+  
 
-  // setInterval(() => updateLinePoints(), 10);
+  setInterval(() => updateLinePoints(), 10);
   
 
   // Update line points on mount and when isOpen changes
@@ -85,8 +103,13 @@ export const Item = (props: ItemProps) => {
       {/* Conditionally render the SVG line if this item has a parent */}
       {props.parentRef && (
         <svg style={{pointerEvents: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1 }}>
-        <line {...linePoints()} stroke="black" strokeWidth="2" style={{ pointerEvents: 'none' }} />
-      </svg>
+          {/* <line {...linePoints()} stroke="black" strokeWidth="2" style={{ pointerEvents: 'none' }} /> */}
+          {/* <line class="line" {...linePoints()} style={{ pointerEvents: 'none' }}  /> */}
+
+          <path d={`M${linePoints().x1},${linePoints().y1} L${linePoints().x2},${linePoints().y2} Q${linePoints().curveCX},${linePoints().curveCY} ${linePoints().curveEX},${linePoints().curveEY}`} stroke="black" fill="none" strokeWidth="2" style={{ pointerEvents: 'none' }} />
+
+
+        </svg>
       )}
       <div onClick={handleClick} class={`relative cursor-pointer font-semibold ${itemColor()} flex items-center gap-2`}>
         <span class="inline-flex mr-2 w-5 h-5 rounded-sm bg-gray-300 items-center justify-center">
