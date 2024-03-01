@@ -17,4 +17,6 @@
   z-index: 0; /* Ensure it doesn't overlap clickable elements */
 }
 
-
+svg {
+  pointer-events: none;
+}

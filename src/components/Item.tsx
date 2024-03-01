@@ -5,6 +5,7 @@ import { Arrow } from './Arrow';
 interface ItemProps extends ContentProps {
   onSelectItem: (item: ContentProps) => void;
   parentRef?: HTMLElement; // Optional: Reference to the parent item's HTML element
+  onToggle?: () => void;
 }
 
 export const Item = (props: ItemProps) => {
@@ -30,6 +31,9 @@ export const Item = (props: ItemProps) => {
     });
   };
 
+  // setInterval(() => updateLinePoints(), 10);
+  
+
   // Update line points on mount and when isOpen changes
   onMount(() => {
     window.addEventListener('resize', updateLinePoints);
@@ -46,7 +50,11 @@ export const Item = (props: ItemProps) => {
   const toggleOpen = (event: MouseEvent) => {
     event.stopPropagation();
     setIsOpen(!isOpen());
-    setTimeout(updateLinePoints, 10); // Update line positions after the toggle animation
+    
+    // setTimeout(updateLinePoints, 100);    
+    props.onToggle?.();
+    requestAnimationFrame(updateLinePoints);
+    
   };
 
   const handleClick = (event: MouseEvent) => {
@@ -76,7 +84,7 @@ export const Item = (props: ItemProps) => {
     <div ref={itemRef}>
       {/* Conditionally render the SVG line if this item has a parent */}
       {props.parentRef && (
-        <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1 }}>
+        <svg style={{pointerEvents: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1 }}>
         <line {...linePoints()} stroke="black" strokeWidth="2" style={{ pointerEvents: 'none' }} />
       </svg>
       )}
@@ -99,7 +107,12 @@ export const Item = (props: ItemProps) => {
         <div class="pl-7 transition-all duration-500 ease-in-out">
           <For each={props.contents}>{(item, index) => (
             <div class="my-3 last:mb-0">
-              <Item {...item} onSelectItem={props.onSelectItem} parentRef={itemRef} />
+              <Item {...item} onSelectItem={props.onSelectItem} parentRef={itemRef} onToggle={() => {
+                // setTimeout(updateLinePoints, 100);  
+                props.onToggle?.(); // Propagate the update up to this item's parent
+                requestAnimationFrame(updateLinePoints);
+                
+              }} />
             </div>
           )}</For>
         </div>
