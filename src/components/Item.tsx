@@ -1,55 +1,45 @@
 import { createEffect, createSignal, For, onCleanup, onMount } from 'solid-js';
 import type { ContentProps } from '../models';
 import { Arrow } from './Arrow';
+import { Connector } from './Connector';
+import { DropdownToggle } from './DropdownToggle';
+import type { Signal, Accessor, Setter } from 'solid-js';
 
 interface ItemProps extends ContentProps {
   onSelectItem: (item: ContentProps) => void;
+  updateSignal: Signal<number>;
+  triggerUpdate: () => void;
   parentRef?: HTMLElement; // Optional: Reference to the parent item's HTML element
-  onToggle?: () => void;
 }
 
 export const Item = (props: ItemProps) => {
   let itemRef: HTMLElement; // Reference to this item's HTML element
   const [isOpen, setIsOpen] = createSignal(false);
-  const [linePoints, setLinePoints] = createSignal({ x1: 0, y1: 0, x2: 0, y2: 0, curveCX: 0, curveCY: 0, curveEX: 0, curveEY: 0 });
-
+  const [linePoints, setLinePoints] = createSignal({ xStart: 0, yStart: 0, xEnd: 0, yEnd: 0 });
+  
   // Function to calculate and update line points between this item and its parent
   const updateLinePoints = () => {
-    if (!props.parentRef || !itemRef) {
+    if (!props.parentRef) {
       return;
     }
+    console.log('updateLinePoints');
   
     const parentRect = props.parentRef.getBoundingClientRect();
     const itemRect = itemRef.getBoundingClientRect();
 
-    const xOffset = 10+3;
-    const yOffset = 12+3;
+    const xOffset = 12; // depends on the width of the icon and such
+    const yOffset = 14; // depends on the width of the icon and such
 
-    const xPos = parentRect.left + window.scrollX + xOffset;
-  
-    // Assuming the curve will start at the end of the vertical line (`x2`, `y2`) and extend rightward.
-    // const curveStartX = xPos; // Same as x2, to start the curve
-    const curveStartY = itemRect.top + window.scrollY + yOffset - 20; // Start a bit above the item for the curve
-    const curveEndX = itemRect.left + window.scrollX + xOffset -10; // End of the item, adjust as needed
-    const curveEndY = itemRect.top + window.scrollY + yOffset; // Top of the item, adjust as needed
+    const xStart = parentRect.left + window.scrollX + xOffset;
+    const yStart = parentRect.top + window.scrollY + yOffset;
+    const xEnd = itemRect.left + window.scrollX;
+    const yEnd = itemRect.top + window.scrollY + yOffset;
 
-    
-  
-    // Adjust these calculations as needed for your layout
-    setLinePoints({
-      x1: xPos,
-      y1: parentRect.top + window.scrollY + yOffset,
-      x2: xPos,
-      y2: curveStartY, // Adjust based on where you want the curve to start
-      curveCX: xPos, // Control point for curve, adjust as needed
-      curveCY: curveStartY + 20, // Control point for curve, adjust as needed
-      curveEX: curveEndX, // End point of curve
-      curveEY: curveEndY, // End point of curve
-    });
+    setLinePoints({ xStart, yStart, xEnd, yEnd });
   };
   
 
-  setInterval(() => updateLinePoints(), 10);
+  // setInterval(() => updateLinePoints(), 10);
   
 
   // Update line points on mount and when isOpen changes
@@ -58,7 +48,11 @@ export const Item = (props: ItemProps) => {
     updateLinePoints();
   });
 
-  createEffect(updateLinePoints);
+
+  createEffect(() => {
+    const signalValue = props.updateSignal();
+    updateLinePoints();
+  });
 
   // Cleanup
   onCleanup(() => {
@@ -68,10 +62,11 @@ export const Item = (props: ItemProps) => {
   const toggleOpen = (event: MouseEvent) => {
     event.stopPropagation();
     setIsOpen(!isOpen());
+    props.triggerUpdate();
     
     // setTimeout(updateLinePoints, 100);    
-    props.onToggle?.();
-    requestAnimationFrame(updateLinePoints);
+    // console.log('toggleOpen');
+    // onToggle();
     
   };
 
@@ -83,6 +78,11 @@ export const Item = (props: ItemProps) => {
   const isDirectory = props.type === 'Directory' || props.type === 'RootDirectory';
   const isPythonEntity = props.type === 'PythonEntity';
   const isFile = (!isDirectory && !isPythonEntity);
+
+  const isDropDownable = () => {
+    return (props.contents && props.contents.length > 0) && (isDirectory || isPythonEntity)
+  }
+
 
   const renderIcon = () => {
     if (isFile) return '📄';
@@ -99,43 +99,27 @@ export const Item = (props: ItemProps) => {
   };
 
   return (
-    <div ref={itemRef}>
+    <div ref={itemRef} class="relative-container">
       {/* Conditionally render the SVG line if this item has a parent */}
       {props.parentRef && (
-        <svg style={{pointerEvents: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -99 }}>
-          {/* <line {...linePoints()} stroke="black" strokeWidth="2" style={{ pointerEvents: 'none' }} /> */}
-          {/* <line class="line" {...linePoints()} style={{ pointerEvents: 'none' }}  /> */}
-
-          <path d={`M${linePoints().x1},${linePoints().y1} L${linePoints().x2},${linePoints().y2} Q${linePoints().curveCX},${linePoints().curveCY} ${linePoints().curveEX},${linePoints().curveEY}`} stroke="gray" fill="none" strokeWidth="2" style={{ pointerEvents: 'none' }} />
-
-
-        </svg>
+        <Connector  
+          linePoints={linePoints()}
+        />
       )}
       <div onClick={handleClick} class={`relative cursor-pointer font-semibold ${itemColor()} flex items-center gap-2`}>
-        <span class="inline-flex mr-2 w-8 h-8 rounded-sm bg-indigo-800 items-center justify-center">
+        <span class="inline-flex mr-2 w-6 h-6 rounded-sm bg-indigo-800 items-center justify-center z-10">
           {renderIcon()}
         </span>
         <span class="flex-1 truncate hover:underline">{props.name}</span>
         {props.contents && props.contents.length > 0 && (
-          <div onClick={toggleOpen} class="mx-2 text-sm cursor-pointer inline-flex justify-center items-center w-6 h-6 rounded-sm  hover:bg-indigo-900 transition-colors duration-150 ease-in-out">
-            {isOpen() ? (
-              <span class="transition-transform transform rotate-90"><Arrow/></span>
-            ) : (
-              <span class="transition-transform"><Arrow/></span>
-            )}
-          </div>
+          <DropdownToggle isOpen={isOpen} toggleOpen={toggleOpen} />
         )}
       </div>
-      {(isDirectory || isPythonEntity) && isOpen() && (
-        <div class="pl-7 transition-all duration-500 ease-in-out">
+      {isDropDownable() && isOpen() && (
+        <div class="pl-7">
           <For each={props.contents}>{(item, index) => (
             <div class="my-3 last:mb-0">
-              <Item {...item} onSelectItem={props.onSelectItem} parentRef={itemRef} onToggle={() => {
-                // setTimeout(updateLinePoints, 100);  
-                props.onToggle?.(); // Propagate the update up to this item's parent
-                requestAnimationFrame(updateLinePoints);
-                
-              }} />
+              <Item {...item} onSelectItem={props.onSelectItem} parentRef={itemRef} updateSignal={props.updateSignal} triggerUpdate={props.triggerUpdate} />
             </div>
           )}</For>
         </div>
