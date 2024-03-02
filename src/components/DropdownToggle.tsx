@@ -3,7 +3,7 @@ import { Arrow } from "./Arrow";
 
 interface DropdownToggleProps {
     isOpen: boolean
-    toggleOpen: () => void;
+    toggleOpen: (event: MouseEvent) => void;
 }
 
 export const DropdownToggle = (props: DropdownToggleProps) => {

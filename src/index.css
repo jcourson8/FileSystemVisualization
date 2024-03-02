@@ -2,14 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  background-color: #1e1b4b;
-}
-
-
-
-
+/* html {
+  background-color: #161618;
+} */
 
 svg {
   pointer-events: none;
+}
+:root {
+  color-scheme: dark;
 }

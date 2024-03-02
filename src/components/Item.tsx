@@ -7,7 +7,7 @@ import type { Signal, Accessor, Setter } from 'solid-js';
 
 interface ItemProps extends ContentProps {
   onSelectItem: (item: ContentProps) => void;
-  updateSignal: Signal<number>;
+  updateSignal: Accessor<number>;
   triggerUpdate: () => void;
   parentRef?: HTMLElement; // Optional: Reference to the parent item's HTML element
 }
@@ -27,13 +27,13 @@ export const Item = (props: ItemProps) => {
     const parentRect = props.parentRef.getBoundingClientRect();
     const itemRect = itemRef.getBoundingClientRect();
 
-    const xOffset = 12; // depends on the width of the icon and such
+    // const xOffset = 12; // depends on the width of the icon and such
     const yOffset = 14; // depends on the width of the icon and such
 
-    const xStart = parentRect.left + window.scrollX + xOffset;
-    const yStart = parentRect.top + window.scrollY + yOffset;
-    const xEnd = itemRect.left + window.scrollX;
-    const yEnd = itemRect.top + window.scrollY + yOffset;
+    const xStart = (parentRect.left + parentRect.right) / 2 ;
+    const yStart = parentRect.bottom;
+    const xEnd = itemRect.left;
+    const yEnd = (itemRect.top + itemRect.bottom) / 2;
 
     setLinePoints({ xStart, yStart, xEnd, yEnd });
   };
@@ -99,7 +99,7 @@ export const Item = (props: ItemProps) => {
   };
 
   return (
-    <div ref={itemRef} class="relative-container">
+    <div class="relative-container">
       {/* Conditionally render the SVG line if this item has a parent */}
       {props.parentRef && (
         <Connector  
@@ -107,18 +107,18 @@ export const Item = (props: ItemProps) => {
         />
       )}
       <div onClick={handleClick} class={`relative cursor-pointer font-semibold ${itemColor()} flex items-center gap-2`}>
-        <span class="inline-flex mr-2 w-6 h-6 rounded-sm bg-indigo-800 items-center justify-center z-10">
+        <span ref={itemRef} class="inline-flex mr-2 w-6 h-6 rounded-sm bg-dark-800 items-center justify-center z-10">  
           {renderIcon()}
         </span>
         <span class="flex-1 truncate hover:underline">{props.name}</span>
         {props.contents && props.contents.length > 0 && (
-          <DropdownToggle isOpen={isOpen} toggleOpen={toggleOpen} />
+          <DropdownToggle isOpen={isOpen()} toggleOpen={toggleOpen} />
         )}
       </div>
       {isDropDownable() && isOpen() && (
-        <div class="pl-7">
+        <div class="pl-10">
           <For each={props.contents}>{(item, index) => (
-            <div class="my-3 last:mb-0">
+            <div class="my-5 last:mb-0">
               <Item {...item} onSelectItem={props.onSelectItem} parentRef={itemRef} updateSignal={props.updateSignal} triggerUpdate={props.triggerUpdate} />
             </div>
           )}</For>
